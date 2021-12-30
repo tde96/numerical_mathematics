@@ -1,0 +1,104 @@
+//
+//  main.cpp
+//  num_mathe_projekt_2
+//  Programmieraufgabe 2 - Euler und Runge-Kutta Verfahren
+//
+//  Created by Tim Eberhardt on 10.06.21.
+//
+//  Entwickelt unter: Xcode, macOS Catalina V10.15.6
+//
+//  Getestet unter: macOS Catalina V10.15.6
+//
+//  P'(t) = P(t) - 0.1 * (P(t))^2
+//  P(0) = 1
+//  mit Konvergenzordnung 4
+//
+
+#include <iostream>
+#include <fstream>
+#include <math.h>
+//#include <iomanip>          //setw für (Windows)
+//#include <conio.h>          //cmd bleibt geöffnet (Windows)
+
+//Schrittweite
+#define h 0.2
+
+#define tz ','                                // Trennzeichen (Konstante)
+#define CSVdatei "nm_2_werte.csv"             // Dateiname  (Konstante)
+
+using namespace std;
+
+//Funktionen
+double dgl_func(double x, double y_null);
+double gerade_func(double x, double y_null);
+
+int main() {
+    
+    // CSV File
+    ofstream csv;       // Datei zum Beschreiben deklariert (Output File Stream)
+    
+    
+    //Startwerte für Euler Verfahren deklarieren
+    double t = 0, euler_wert = 1, euler_speicher = 1;
+    //Startwerte für Runge-Kutta Verfahren deklarieren
+    double k1 = 0, k2 = 0, k3 = 0, k4 = 0, rk_wert = 1, rk_speicher = 1;
+
+    //Tabellen cmd Uebershrift
+    cout << left << setw(15) << "t" << setw(15) << "Euler y(t)" << setw(15)  <<  "Runge-Kutta y(t)" << endl << endl;
+    
+    //Nachkommastellen definieren
+    cout.setf(ios::fixed,  ios::floatfield );
+    
+    //Euler Iterations-Startwerte berechnen
+    cout << left << setw(15) << t << setw(15) << euler_wert << setw(15) << rk_wert <<  endl;
+    t = t + h;
+    
+    //Datei neu erstellen und oeffnen
+    csv.open(CSVdatei);
+    
+    //Tabellen Ueberschriften in csv
+    csv << "t" << tz << "Euler y(t)" << tz << "Runge-Kutta y(t)" << '\n';
+    
+    if (!csv.fail()) {
+        do {
+            
+            //Euler Verfahren
+            euler_wert = gerade_func(t, euler_speicher);
+            
+            //Runge-Kutta Verfahren
+            k1 = dgl_func(t, rk_speicher);
+            k2 = dgl_func(t + h/2, rk_speicher + (h/2) * k1);
+            k3 = dgl_func(t + h/2, rk_speicher + (h/2) * k2);
+            k4 = dgl_func(t + h, rk_speicher + h * k3);
+            rk_wert = rk_speicher + (h/6) * (k1 + 2*k2 + 2*k3 + k4);
+
+            //Ausgabe in Terminal
+            cout << left << setw(15) << t << setw(15) << euler_wert  << setw(15) << rk_wert << endl;
+            
+            //Werte in CSV schreiben
+            csv << t << tz << euler_wert << tz << rk_wert << '\n';
+            
+            //Speicher
+            euler_speicher = euler_wert;
+            rk_speicher = rk_wert;
+        
+            //Stelle erhöhen
+            t = t + h;
+            
+        } while (t < 10);
+    }
+    
+    //Datei speichern und schliessen;
+    csv.close();
+    
+    //getch();  //für Windows
+    
+    return 0;
+}
+
+// Mathematische Funktionen:
+// P'(t) = P(t) - 0.1 * (P(t))^2
+double dgl_func(double x, double y_null) {return y_null - 0.1 * y_null * y_null;}
+
+// Geradengleichung  y1 = y0 + h * P(t,y0)
+double gerade_func(double x, double y_null) {return y_null + h * dgl_func(x, y_null);}
