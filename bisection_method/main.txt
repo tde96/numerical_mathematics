@@ -1,0 +1,144 @@
+//
+//  main.cpp
+//  bisektionsverfahren
+//
+//  Created by Tim Eberhardt on 01.05.21.
+//
+//  Entwickelt unter: Xcode, macOS Catalina V10.15.6
+//
+//  Getestet unter: Xcode, macOS Catalina V10.15.6 & Win 7
+//
+//
+//  ACHTUNG: Bei der exe. Datei (fuer Windows) wurden der Wert 
+setw auf 12 gesetzt und f(a)
+//  und f(b) werden nicht in der Console ausgegeben! 
+(Platzprobleme bei cmd)
+
+#include <iostream>
+#include <cmath>            //Header fÅr mathematische Funktionen
+#include <math.h>
+#include <fstream>
+#include <string>
+//#include <iomanip>          //setw fÅr Windows
+//#include <conio.h>          //cmd bleibt geîffnet fÅr Windows
+
+#define tz ','                                // Trennzeichen 
+(Konstante)
+#define CSVdatei "bv_werte.csv"            // Dateiname  
+(Konstante)
+
+using namespace std;
+
+double mathe_funktion(double x);    // y = x + ln(x+5) -1
+
+
+int main() {
+    
+    //Deklaration der Veriablen
+    double rand_a, rand_b, x, abstand, k = 0;
+    
+    // CSV File
+    ofstream csv;                        // Datei zum Beschreiben 
+deklariert (Output File Stream)
+    ifstream daten;                      // Datei zum Einlesen 
+deklariert (Input File Stream)
+    string zeile;                        // C++ String deklariert
+    
+    // Ausgabe Titel
+    cout << "Numerische Mathematik Programmieraufgabe 1: 
+Bisektionsverfahren\n\n";
+    
+    // Eingabe Intervall a0 und b0
+    do {
+        cout << "Eingabe Intervallgrenzen a0 und b0\na0:";
+        cin >> rand_a;
+        cout << "b0:";
+        cin >> rand_b;
+    } while (rand_a > rand_b);          //PrÅfung: ob Grenzen 
+richtig eingegeben wurden
+    
+    
+    // Datei neu erstellen und oeffnen
+    csv.open(CSVdatei);
+    
+    // Tabelle - Eintrag der Bezeichnungen
+    csv << "k" << tz << "a" << tz << "b" << tz << "x" << tz << 
+"b-a" << tz <<"f(x)" << tz << "f(a)" << tz << "f(b)" << '\n';
+
+    // Werte in Console ausgeben
+    cout << left << setw(15) << "k" << setw(15) << "a" <<setw(15) 
+<< "b" << setw(15) << "x" << setw(15) << "b-a" << setw(15) << 
+"f(x)" << setw(15) << "f(a)" << setw(15) << "f(b)" << endl << 
+endl;
+
+
+    if (!csv.fail()) { // Ist KEIN Fehler beim Oeffnen 
+aufgetreten?
+        // Bisektionsverfahren-Algorithmus
+        do {
+            // Neue Werte berechnen
+            abstand = rand_b - rand_a;          // = b-a
+            x = (rand_a + rand_b) / 2;
+            
+            // Werte in csv eintragen
+            csv << k << tz << rand_a << tz << rand_b << tz << x 
+<< tz << abstand << tz << mathe_funktion(x) << tz << 
+mathe_funktion(rand_a) << tz << mathe_funktion(rand_b) << '\n';
+            
+            // Werte in Console ausgeben
+            cout << left << setw(15) << k << setw(15) << rand_a 
+<<setw(15) << rand_b << setw(15) << x << setw(15) << abstand << 
+setw(15) << mathe_funktion(x) << setw(15) << 
+mathe_funktion(rand_a) << setw(15) << mathe_funktion(rand_b) << 
+endl;
+
+            // Intervallgrenzen neu festlegen
+            if (mathe_funktion(rand_a) > 0) {
+                if (mathe_funktion(x) > 0) {
+                    rand_a = x;
+                } else {
+                    rand_b = x;
+                }
+            } else {
+                if (mathe_funktion(x) > 0) {
+                    rand_b = x;
+                } else {
+                    rand_a = x;
+                }
+            }
+
+            // Zaehler erhîhen
+            k = k + 1;
+            
+        } while (abstand > 0.001 && x != 0);
+    }
+
+    // Datei speichern und schliessen;
+    csv.close();
+    //getch();  /fÅr Windows
+    
+    return 0;
+}
+
+
+// Mathematische Funktion:
+double mathe_funktion(double x) {return x+log(x+5)-1;}
+
+// öbungsblatt 3 - Auf. 9
+//double mathe_funktion(double x) {return 2*sin(x)-x; }
+
+// Test Funktion: f(x) = x6 ?x?1 besitzt eine Nullstelle im 
+Intervall [1, 2] nach Zwischenwertsatz
+//double mathe_funktion(double x) {return x*x*x*x*x*x - x - 1;}
+
+
+
+/*
+Notizen:
+- Im Algorithmus ist eine switch-Fallunterscheidung nicht 
+mîglich, da der mittelwert ansonsten als integer deklariert sein 
+muss
+ 
+- Nullstelle von ln-Funktion bei x = -0,5033
+*/
+
