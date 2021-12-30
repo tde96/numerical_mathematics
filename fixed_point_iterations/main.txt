@@ -1,0 +1,176 @@
+//
+//  main.cpp
+//  fixpunktiteration
+//
+//  Created by Tim Eberhardt on 01.05.21.
+//
+//  Entwickelt unter: Xcode, macOS Catalina V10.15.6
+//
+//  Getestet unter: Xcode, macOS Catalina V10.15.6 & Windows 7
+
+#include <iostream>
+#include <cmath>            //Header fÅr mathematische Funktionen
+#include <math.h>
+#include <fstream>
+#include <string>
+//#includen <conio.h>       //fÅr Windows
+//#include <iomanip>        //fÅr Windows
+
+#define tz ','                              // Trennzeichen 
+(Konstante)
+#define CSVdatei "fi_werte.csv"             // Dateiname  
+(Konstante)
+
+using namespace std;
+
+double fi_funktion(double x);
+
+
+int main() {
+
+    //Deklaration der Veriablen
+    double x0, x_kminus1 = 0;
+    int k = 1;
+    
+    // CSV File
+    ofstream csv;                        // Datei zum Beschreiben 
+deklariert (Output File Stream)
+    ifstream daten;                      // Datei zum Einlesen 
+deklariert (Input File Stream)
+    string zeile;                        // C++ String deklariert
+    
+    // Ausgabe Titel
+    cout << "Numerische Mathematik Programmieraufgabe 1: 
+Fixpunktiteration\n\n";
+    
+    // Eingabe des Startwerts
+    cout << "Eingabe Startwert x0: ";
+    cin >> x0;
+    
+    // Datei neu erstellen und oeffnen
+    csv.open(CSVdatei);
+    
+    // Tabelle - Eintrag der Bezeichnungen
+    csv << "k" << tz << "x0" << tz << "|x_k - x_k-1|" << '\n';
+    // Tabelle in Console ausgeben
+    cout << left << setw(15) << "k" << setw(15) << "xn" << "|x_k 
+- x_k-1|" << endl << endl;
+    
+    // Erster Eintrag Tabelle
+    csv << left << setw(15) << 0 << setw(15) << fixed << 
+setprecision(10) << x0 << " " << '\n';           //CSV
+    cout << left << setw(15) << 0 << setw(15) << fixed << 
+setprecision(10) << x0 << " " << endl;          //Console
+    
+    if (!csv.fail()) { // Ist KEIN Fehler beim Oeffnen 
+aufgetreten?
+        do {
+            // Speichere x0 und berechne x0 neu
+            x_kminus1 = x0;
+            x0 = fi_funktion(x0);
+            
+            // Werte in CSV eintragen
+            csv << left << setw(15) << k << setw(15) << fixed << 
+setprecision(10) << x0 << abs(x0-x_kminus1) << '\n';
+                             
+            // Ausgabe in Konsole
+            cout << left << setw(15) << k << setw(15) << fixed << 
+setprecision(10) << x0 << abs(x0-x_kminus1) << endl;
+            
+            // ZÑhler erhîhen
+            k = k + 1;
+            
+        } while (abs(x0-x_kminus1) > 0.00000001);           // 
+Breche die Iteration ab wenn die Genauigkeit erreicht ist
+    }
+    
+    // Datei speichern und schliessen;
+    cout << endl << endl;
+    csv.close();
+    //getch();          //fÅr Windows
+    
+    return 0;
+}
+
+
+// Definition der mathematischen Funktionen
+
+// f(x) = x + ln(x + 5) ? 1:
+//double fi_funktion(double x) {return x + log(x + 5) ? 1; }
+// f'(x):
+//double fi_funktion(double x) {return 1/(x+5) + 1; }
+
+// x - f(x)/f'(x) fÅr das Newton Verfahren:
+//double fi_funktion(double x) {return (2*x-
+(x+5)*log(x+5)+5)/(x+6); }
+
+// Fixpunktgleichungen:
+double fi_funktion(double x) {return 1 - log(x+5); }
+//double fi_funktion(double x) {return exp(x-1)-5; }
+
+
+// Testfunktion:
+//Skript S.11
+//double fi_funktion(double x) {return pow((x+1),1.0/6.0);}
+//double fi_funktion(double x) {return pow(x,6)-1;}
+
+//Skript S. 13 & 14
+//double fi_funktion(double x) {return x/2 + 1/x; }
+//double fi_funktion(double x) { return x - (x*x*x*x*x*x-x-
+1)/(6*x*x*x*x*x-1); }
+//double fi_funktion(double x) {return x*x*x + 0.3;}
+
+//Uebungsblatt 3 Aufg. 9
+//double fi_funktion(double x) {return 2*sin(x);}
+//double fi_funktion(double x) {return x-(2*sin(x)-x)/(2*cos(x)-
+1);}
+
+
+/* Notizen:
+ 
+ f(x) = x + ln(x + 5) ? 1 = 0
+ Ableitung:
+ f'(x) = 1/(x+5) + 1
+ 
+
+ f(x)/f'(x) = (x+log(x+5)-1) / ( 1/(x+5) +1)
+ Alternative Form:
+ f(x)/f'(x) = ((x+5)*(x+log(x+5)-1)) / (x+6)
+ 
+ x-f(x)/f'(x) = (2x-(x+5)*log(x+5)+5)/(x+6)
+ 
+ Umstellen in Fixpunktgleichungen
+ 1. Gleichung:
+ --> x = 1 - ln(x+5)
+ 
+ 2. Gleichung:
+ ln(x+5) = x-1
+ x + 5 = e^(x-1)
+ 
+ --> x = e^(x-1)-5
+ 
+ 
+Old Version - (keine Genauigkeit, nur 20 Iterationen):
+ for (i = 1; i <= 21; i++) {
+     
+    // Speichere x0 und berechne x0 neu
+     x_kminus1 = x0;
+     x0 = fi_funktion(x0);
+     
+     // Werte in CSV eintragen
+     csv << left << setw(15) << n << setw(15) << fixed << 
+setprecision(10) << x0 << '\n';
+                      
+     // Ausgabe in Konsole
+     cout << left << setw(15) << n << setw(15) << fixed << 
+setprecision(10) << x0 << abs(x0-x_kminus1) << endl;
+     
+
+     
+     // ZÑhler erhîhen
+     n = n + 1;
+ }
+}
+*/
+
+
